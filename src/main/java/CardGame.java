@@ -49,6 +49,7 @@ public class CardGame {
         // This will be the actual Snap game (Main) when set up
         System.out.println("Let's Play Snap!");
 
+        // to test printing out all 52 shuffled cards
         CardGame game = new CardGame();
         for (Card card : game.getDeck()) {
             System.out.println(card);
