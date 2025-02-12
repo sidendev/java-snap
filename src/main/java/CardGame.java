@@ -3,27 +3,29 @@ import java.util.Collections;
 
 public class CardGame {
     // fields:
-    // name field - this is the name of the card
+    // name field - this is the name of the card game = example: "Snap"
     private String name;
 
     // ArrayList<Card> for the deckOfCards that contains all 52 cards
     // the ArrayList should be created when the game is constructed
     private ArrayList<Card> deckOfCards;
 
-    // fields needed to set up deck of cards:
+    // fields needed to set up deck of cards: TO BE PUT INTO ENUMS
     private static final String[] SUITS = {"♥", "♣", "♦", "♠"};
     private static final String[] SYMBOLS = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
     private static final int[] VALUES = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
 
     // constructor:
     // constructor sets up the name field
-    public CardGame() {
-        this.deckOfCards = new ArrayList<>();
+    public CardGame(String name) {
+        this.deckOfCards = new ArrayList<>(); // should we shuffle on new game start
         setDeckOfCards();
+        this.name = name; // name of card game = Snap
     }
 
     // methods:
     // method for creating the deck, setDeckOfCards - this will shuffle and set up the cards deckOfCards.
+    // setDeckOfCards needs to be separated out into methods, they get called on start up
     public void setDeckOfCards() {
         deckOfCards.clear(); // This should clear previous deckOfCards ready for new set
 
@@ -36,25 +38,44 @@ public class CardGame {
             }
         }
 
-        Collections.shuffle(deckOfCards); // this will shuffle deckOfCards after creating array of all cards
+        Collections.shuffle(deckOfCards); // this will shuffle deckOfCards on initial game load
+    }
+
+    public void shuffleDeck() {
+        Collections.shuffle(deckOfCards); // this will shuffle deckOfCards when called
     }
 
     // getDeck method that lists out the cards in the deck.
-    public ArrayList<Card> getDeck() {
-        return deckOfCards;
+    public void getDeck() {
+        for (Card card : deckOfCards) {
+            System.out.println(card);
+        }
     }
 
+    public Card dealCard() {
+        return deckOfCards.getFirst();
+    }
+
+    // sorts deck in number order using the values of the card - not sure if has to return ArrayList<Card>
+    public void sortDeckInNumberOrder() {
+        Collections.sort(deckOfCards);
+    }
 
     public static void main(String[] args) {
         // This will be the actual Snap game (Main) when set up
         System.out.println("Let's Play Snap!");
 
         // to test printing out all 52 shuffled cards
-        CardGame game = new CardGame();
-        for (Card card : game.getDeck()) {
-            System.out.println(card);
-        }
+        CardGame game = new CardGame("Snap"); // starting a new game
 
+        game.getDeck(); // listing out all cards
+
+        System.out.println("This is the first card: " + game.dealCard());
+
+        game.sortDeckInNumberOrder(); // should sort in number order 2 to Ace
+
+        System.out.println("This is the deck in number sorted order: ");
+        game.getDeck();
 
 
     } // end main

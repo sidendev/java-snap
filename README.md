@@ -11,7 +11,7 @@
   <a href="#features">Features</a> •
   <a href="#tech-stack">Tech Stack</a> •
   <a href="#getting-started">Getting Started</a> •
-  <a href="#deployment">Deployment</a> •
+  <a href="#local-development">Local Development</a> •
   <a href="#testing">Testing</a>
 </div>
 
@@ -34,7 +34,7 @@
 
 
 
-### Local Development Setup
+## Local Development
 
 
 

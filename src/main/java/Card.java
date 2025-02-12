@@ -1,4 +1,4 @@
-public class Card {
+public class Card implements Comparable<Card> {
     // fields:
     // Heart: ♥ (U+2665)
     // Club: ♣ (U+2663)
@@ -23,7 +23,12 @@ public class Card {
     // methods:
     // a toString method that describes the class
     public String toString() {
-        return symbol + suit;
+        return symbol + " " + suit;
+    }
+
+    // so we can use Collections.sort and sort deck by value of card
+    public int compareTo(Card otherCard) {
+        return Integer.compare(this.value, otherCard.value);
     }
 
 } // end class
