@@ -8,7 +8,7 @@ public class CardGame {
 
     // ArrayList<Card> for the deckOfCards that contains all 52 cards
     // the ArrayList should be created when the game is constructed
-    private ArrayList<Card> deckOfCards;
+    public ArrayList<Card> deckOfCards;
 
     // fields needed to set up deck of cards: TO BE PUT INTO ENUMS - also put into the ENUMS the SUIT ORDER
     private static final String[] SUITS = {"♥", "♣", "♦", "♠"};
