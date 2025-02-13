@@ -39,6 +39,16 @@ public class Snap extends CardGame {
             scanner.nextLine(); // getting user enter input
         }
 
+        System.out.println("Game over. Would you like to play again? (Y/N)");
+        String response = scanner.nextLine();
+        if (response.equalsIgnoreCase("Y")) {
+            playGame(); // Restart the game
+        } else {
+            System.out.println("Thanks for playing!");
+            scanner.close();
+        }
+
+
 
     } // end playGame
 
