@@ -38,7 +38,8 @@ public class CardGame {
             }
         }
 
-        Collections.shuffle(deckOfCards); // this will shuffle deckOfCards on initial game load
+        // Collections.shuffle(deckOfCards); // this will shuffle deckOfCards on initial game load - just call method
+        shuffleDeck();
     }
 
     public void shuffleDeck() {
@@ -53,7 +54,9 @@ public class CardGame {
     }
 
     public Card dealCard() {
-        return deckOfCards.getFirst();
+        Card cardToDeal = deckOfCards.removeFirst(); // removing the first card
+        deckOfCards.add(cardToDeal); // putting it at the bottom
+        return cardToDeal;
     }
 
     // sorts deck in number order using the values of the card - not sure if has to return ArrayList<Card>
@@ -73,17 +76,21 @@ public class CardGame {
         // to test printing out all 52 shuffled cards
         CardGame game = new CardGame("Snap"); // starting a new game
 
-        game.getDeck(); // listing out all cards
+        game.getDeck(); // listing out all cards - check it is shuffled
 
         System.out.println("This is the first card: " + game.dealCard());
+        System.out.println("This is the next card: " + game.dealCard());
+        System.out.println("This is the next card: " + game.dealCard());
+        System.out.println("This is the next card: " + game.dealCard());
+        System.out.println("This is the next card: " + game.dealCard());
 
-        game.sortDeckInNumberOrder(); // should sort in number order 2 to Ace
-        System.out.println("This is the deck in number sorted order: ");
-        game.getDeck();
+//        game.sortDeckInNumberOrder(); // should sort in number order 2 to Ace
+//        System.out.println("This is the deck in number sorted order: ");
+//        game.getDeck();
 
-        game.sortDeckIntoSuits(); // sorts the deck into suits
-        System.out.println("This is the deck now sorted by suit: ");
-        game.getDeck();
+//        game.sortDeckIntoSuits(); // sorts the deck into suits
+//        System.out.println("This is the deck now sorted by suit: ");
+//        game.getDeck();
 
 
 
