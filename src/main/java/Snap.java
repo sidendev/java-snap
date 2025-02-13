@@ -5,6 +5,8 @@ public class Snap extends CardGame {
     private ArrayList<Card> dealtCards;
     private Scanner scanner;
     private int cardsDealtCount; // to track how many cards have been dealt so far
+    private Player player1;
+    private Player player2;
 
     // Constructor
     public Snap() {
@@ -60,10 +62,10 @@ public class Snap extends CardGame {
         System.out.println("Game over. Would you like to play again? (Y/N)");
         String response = scanner.nextLine();
         if (response.equalsIgnoreCase("Y")) {
-            shuffleDeck(); // shuffle the deck
-            dealtCards.clear(); // resetting the list of dealt cards
-            cardsDealtCount = 0; // resetting the counter
-            playGame(); // Restart the game
+            shuffleDeck();
+            dealtCards.clear();
+            cardsDealtCount = 0;
+            playGame();
         } else {
             System.out.println("Thanks for playing!");
             scanner.close();
