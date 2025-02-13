@@ -10,7 +10,7 @@ public class CardGame {
     // the ArrayList should be created when the game is constructed
     private ArrayList<Card> deckOfCards;
 
-    // fields needed to set up deck of cards: TO BE PUT INTO ENUMS
+    // fields needed to set up deck of cards: TO BE PUT INTO ENUMS - also put into the ENUMS the SUIT ORDER
     private static final String[] SUITS = {"♥", "♣", "♦", "♠"};
     private static final String[] SYMBOLS = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
     private static final int[] VALUES = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
@@ -61,6 +61,11 @@ public class CardGame {
         Collections.sort(deckOfCards);
     }
 
+    // sorts deck into suits, 2,3,4,5,6,7,8,9,10,J,Q,K,A of hearts etc - using a comparator for this
+    public void sortDeckIntoSuits() {
+        deckOfCards.sort(new SortingBySuit());
+    }
+
     public static void main(String[] args) {
         // This will be the actual Snap game (Main) when set up
         System.out.println("Let's Play Snap!");
@@ -73,9 +78,13 @@ public class CardGame {
         System.out.println("This is the first card: " + game.dealCard());
 
         game.sortDeckInNumberOrder(); // should sort in number order 2 to Ace
-
         System.out.println("This is the deck in number sorted order: ");
         game.getDeck();
+
+        game.sortDeckIntoSuits(); // sorts the deck into suits
+        System.out.println("This is the deck now sorted by suit: ");
+        game.getDeck();
+
 
 
     } // end main

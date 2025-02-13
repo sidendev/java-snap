@@ -20,6 +20,19 @@ public class Card implements Comparable<Card> {
         this.value = value;
     }
 
+    // setting up getters for the card - will need possibly going forward
+    public String getSuit() {
+        return suit;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
     // methods:
     // a toString method that describes the class
     public String toString() {
