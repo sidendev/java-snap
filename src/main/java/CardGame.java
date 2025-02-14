@@ -69,32 +69,32 @@ public class CardGame {
         deckOfCards.sort(new SortingBySuit());
     }
 
-    public static void main(String[] args) {
-        // This will be the actual Snap game (Main) when set up
-        System.out.println("Let's Play Snap!");
-
-        // to test printing out all 52 shuffled cards
-        CardGame game = new CardGame("Snap"); // starting a new game
-
-        game.getDeck(); // listing out all cards - check it is shuffled
-
-        System.out.println("This is the first card: " + game.dealCard());
-        System.out.println("This is the next card: " + game.dealCard());
-        System.out.println("This is the next card: " + game.dealCard());
-        System.out.println("This is the next card: " + game.dealCard());
-        System.out.println("This is the next card: " + game.dealCard());
-
-//        game.sortDeckInNumberOrder(); // should sort in number order 2 to Ace
-//        System.out.println("This is the deck in number sorted order: ");
-//        game.getDeck();
-
-//        game.sortDeckIntoSuits(); // sorts the deck into suits
-//        System.out.println("This is the deck now sorted by suit: ");
-//        game.getDeck();
-
-
-
-    } // end main
+//    public static void main(String[] args) {
+//        // This will be the actual Snap game (Main) when set up
+//        System.out.println("Let's Play Snap!");
+//
+//        // to test printing out all 52 shuffled cards
+//        CardGame game = new CardGame("Snap"); // starting a new game
+//
+//        game.getDeck(); // listing out all cards - check it is shuffled
+//
+//        System.out.println("This is the first card: " + game.dealCard());
+//        System.out.println("This is the next card: " + game.dealCard());
+//        System.out.println("This is the next card: " + game.dealCard());
+//        System.out.println("This is the next card: " + game.dealCard());
+//        System.out.println("This is the next card: " + game.dealCard());
+//
+////        game.sortDeckInNumberOrder(); // should sort in number order 2 to Ace
+////        System.out.println("This is the deck in number sorted order: ");
+////        game.getDeck();
+//
+////        game.sortDeckIntoSuits(); // sorts the deck into suits
+////        System.out.println("This is the deck now sorted by suit: ");
+////        game.getDeck();
+//
+//
+//
+//    } // end main
 
 
 
