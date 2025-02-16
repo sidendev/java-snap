@@ -4,6 +4,8 @@ import java.util.Scanner;
 import java.io.IOException;
 
 public class Snap extends CardGame {
+    private static final int SNAP_TIMEOUT_MS = 2000;
+    private static final int DECK_SIZE = 52;
     private ArrayList<Card> dealtCards; // should not be final
     private Scanner scanner;
     private int cardsDealtCount;
@@ -11,25 +13,49 @@ public class Snap extends CardGame {
     private final Player player2;
     private boolean isPlayer1Turn;
     private final Object scannerLock = new Object(); // needed for synchronized
+    private String player1Name;
+    private String player2Name;
 
     public Snap() {
         super("Snap");
         this.dealtCards = new ArrayList<>();
         this.scanner = new Scanner(System.in);
         this.cardsDealtCount = 0;
-
+        playerNameSetUp();
+        this.player1 = new Player(player1Name);
+        this.player2 = new Player(player2Name);
+        this.isPlayer1Turn = true;
+    }
+    
+    private void playerNameSetUp() {
         System.out.println();
         System.out.println("Welcome to Java Snap!");
         System.out.println();
         System.out.println("Players, lets get ready.");
-        System.out.print("Enter Player 1 name: ");
-        String name1 = scanner.nextLine();
-        System.out.print("Enter Player 2 name: ");
-        String name2 = scanner.nextLine();
+        player1Name = getValidPlayerName(1);
+        player2Name = getValidPlayerName(2);
+    }
 
-        this.player1 = new Player(name1);
-        this.player2 = new Player(name2);
-        this.isPlayer1Turn = true;
+    private String getValidPlayerName(int playerNumber) {
+        String name;
+        while (true) {
+            System.out.print("Enter Player " + playerNumber + " name: ");
+            name = scanner.nextLine();
+
+            try {
+                if (name == null || name.trim().isEmpty()) {
+                    System.out.println("Error: Name cannot be empty. Please try again.");
+                    continue;
+                }
+                if (playerNumber == 2 && name.trim().equalsIgnoreCase(player1Name)) {
+                    System.out.println("Error: Players cannot have the same name. Please choose a different name.");
+                    continue;
+                }
+                return name.trim();
+            } catch (Exception e) {
+                System.out.println("Error reading input. Please try again. Exception: " + e.getMessage());
+            }
+        }
     }
 
     private void resetGame() {
@@ -56,7 +82,7 @@ public class Snap extends CardGame {
     }
 
     private void checkIfEntirePackDealt() {
-        if (cardsDealtCount == 52) {
+        if (cardsDealtCount == DECK_SIZE) {
             System.out.println("Wow, this game is going on for a long time!");
             System.out.println("The dealer has now shuffled the deck.");
             shuffleDeck();
@@ -65,8 +91,7 @@ public class Snap extends CardGame {
         }
     }
 
-    public void playGame() {
-
+    private void gameIntroMessage() {
         System.out.println();
         System.out.println("How to play Java Snap:");
         System.out.println("- Players take turns pressing Enter to be dealt a card.");
@@ -78,9 +103,29 @@ public class Snap extends CardGame {
         System.out.println("Current scores are, " + player1.getName() + ": " + player1.getScore()
                 + " and " + player2.getName() + ": " + player2.getScore());
         System.out.println();
+    }
+
+    private Thread createInputThread(String[] userInput, boolean[] playerHasSnapped) {
+        Thread inputThread = new Thread(() -> {
+            try {
+                userInput[0] = scanner.nextLine().trim();
+                playerHasSnapped[0] = userInput[0].equalsIgnoreCase("snap");
+                synchronized (scannerLock) {
+                    scannerLock.notify();
+                }
+            } catch (NoSuchElementException | IllegalStateException e) {
+                System.err.println(e.getMessage());
+            }
+        });
+        inputThread.start();
+        return inputThread;
+    }
+
+    public void playGame() {
+        gameIntroMessage();
 
         // Infinite game loop - exits with System.exit() when player chooses to quit game.
-        // Will get warning on while in IDE
+        // Will get warning on (while) in IDE
         while (true) {
             Player currentPlayer = isPlayer1Turn ? player1 : player2;
             System.out.println(currentPlayer.getName() + "'s turn. Press Enter to get a card...");
@@ -100,12 +145,10 @@ public class Snap extends CardGame {
 
             checkIfEntirePackDealt();
 
-            // switching players
             isPlayer1Turn = !isPlayer1Turn;
         }
-    } // playGame end
+    } // end playGame
 
-    // checking if player writes snap or not and handling outcome
     private void playerWritesSnap() {
         System.out.println("Looks like a SNAP! Type 'snap' within 2 seconds!");
         final boolean[] playerHasSnapped = {false};
@@ -117,14 +160,14 @@ public class Snap extends CardGame {
         // creating input thread and starting
         Thread inputThread = createInputThread(userInput, playerHasSnapped);
 
-        // waiting for 2 seconds or until input is received - this should stop the error for the thread
-        // should stop multiple threads trying to access scanner
+        // waiting for 2 seconds or until input is received
+        // this try catch should block other thread from attempting to access scanner
         try {
             synchronized (scannerLock) {
-                scannerLock.wait(2000);
+                scannerLock.wait(SNAP_TIMEOUT_MS);
             }
         } catch (InterruptedException e) {
-            System.err.println(e.getMessage());
+            System.err.println("InterruptedException while waiting for input: " + e.getMessage());
         }
 
         // if thread is still alive after 2 seconds or no input received
@@ -134,9 +177,9 @@ public class Snap extends CardGame {
             nonCurrentPlayer.incrementScore();
             inputThread.interrupt();
 
-            scanner = new Scanner(System.in); // setting up a new scanner - should fix error
+            scanner = new Scanner(System.in); // setting up a new scanner for next input
 
-            // clearing input buffer, warning on read can be ignored
+            // clearing input buffer, IDE warning on (read) can be ignored
             try {
                 while(System.in.available() > 0) {
                     System.in.read();
@@ -147,38 +190,18 @@ public class Snap extends CardGame {
         } else {
             System.out.println("Well done, " + currentPlayer.getName() + "! You typed 'snap' in time. You win!");
             currentPlayer.incrementScore();
-
             askToPlayAgain();
-
             return;
         }
 
         askToPlayAgain();
-
     } // end playerWritesSnap
-
-    private Thread createInputThread(String[] userInput, boolean[] playerHasSnapped) {
-        Thread inputThread = new Thread(() -> {
-            try {
-                userInput[0] = scanner.nextLine().trim();
-                playerHasSnapped[0] = userInput[0].equalsIgnoreCase("snap");
-                synchronized (scannerLock) {
-                    scannerLock.notify();
-                }
-            } catch (NoSuchElementException | IllegalStateException e) {
-                System.err.println(e.getMessage()); // make more specific - testing
-            }
-        });
-
-        inputThread.start();
-        return inputThread;
-    }
 
     public static void main(String[] args) {
 
         Snap snapGame = new Snap();
         snapGame.playGame();
 
-    } // end snap main
+    } // end Snap main method
 
-} // end class
+} // end Snap class
