@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.io.IOException;
 
 public class Snap extends CardGame {
     private ArrayList<Card> dealtCards;
@@ -11,7 +10,6 @@ public class Snap extends CardGame {
     private Player player2;
     private boolean isPlayer1Turn;
 
-    // Constructor
     public Snap() {
         super("Snap");
         this.dealtCards = new ArrayList<>();
@@ -32,9 +30,7 @@ public class Snap extends CardGame {
         this.isPlayer1Turn = true;
     }
 
-    private void restartGame() {
-
-        // make this a method - reset game
+    private void resetGame() {
         shuffleDeck();
         dealtCards.clear();
         cardsDealtCount = 0;
@@ -68,36 +64,12 @@ public class Snap extends CardGame {
             System.out.println();
 
             if (!dealtCards.isEmpty() && dealtCards.getLast().getSymbol().equals(newCard.getSymbol())) {
-                if (playerWritesSnap()) {
-                    System.out.println("Well done, " + currentPlayer.getName() + "! You typed 'snap' in time. You win!");
-                    currentPlayer.incrementScore();
-
-                    System.out.println("Would you like to play again? (Y/N)");
-                    String response = scanner.nextLine();
-                    if (response.equalsIgnoreCase("Y")) {
-                        restartGame();
-                    } else {
-                        System.out.println("Thanks for playing!");
-                        System.exit(0);
-                    }
-
-                    // restartGame();
-                } else {
-                    // own method for this part?
-                    System.out.println("Would you like to play again? (Y/N)");
-                    String response = scanner.nextLine();
-                    if (response.equalsIgnoreCase("Y")) {
-                        restartGame();
-                    } else {
-                        System.out.println("Thanks for playing!");
-                        System.exit(0);
-                    }
-                }
+                playerWritesSnap(); // handles if winner or loser for this round - checking if written snap
             }
 
             dealtCards.add(newCard); // storing the card for comparison
 
-            // checking if 52 cards have been dealt
+            // checking if 52 cards have been dealt - make this a method
             if (cardsDealtCount == 52) {
                 System.out.println("Wow, this game is going on for a long time!");
                 System.out.println("The dealer has now shuffled the deck.");
@@ -112,112 +84,96 @@ public class Snap extends CardGame {
         }
     } // playGame end
 
+    // checking if player writes snap or not and handling outcome
     private boolean playerWritesSnap() {
         System.out.println("Looks like a SNAP! Type 'snap' within 2 seconds!");
-        final boolean[] snapped = {false};
-        Player otherPlayer = isPlayer1Turn ? player2 : player1; // FIX THIS
-        Player currentPlayer = isPlayer1Turn ? player1 : player2; // FIX THIS
+        final boolean[] snapped = {false}; // check on this - testing
+        final String[] userInput = {""}; // check on this - testing
+        
+        Player currentPlayer = isPlayer1Turn ? player1 : player2;
+        Player nonCurrentPlayer = isPlayer1Turn ? player2 : player1;
 
-        long startTime = System.currentTimeMillis();
-        String input = scanner.nextLine().trim();
-        long endTime = System.currentTimeMillis();
+        // making a separate thread for input
+        Thread inputThread = new Thread(() -> {
+            try {
+                userInput[0] = scanner.nextLine().trim();
+                snapped[0] = true;
+                synchronized (scanner) {
+                    scanner.notify();
+                }
+            } catch (Exception e) {
+                System.err.println(e.getMessage()); // make more specific - testing
+            }
+        });
 
-        if (endTime - startTime > 8000 || !input.equalsIgnoreCase("snap")) {
+        // starting the input thread
+        inputThread.start();
+
+        // waiting for 2 seconds or until input is received - this should stop the error for the thread
+        // should stop multiple threads trying to access scanner
+        try {
+            synchronized (scanner) {
+                scanner.wait(8000);
+            }
+        } catch (InterruptedException e) {
+            System.err.println(e.getMessage());
+        }
+
+        // if thread is still alive after 2 seconds or no input received
+        if (inputThread.isAlive() || !snapped[0]) {
             System.out.println("Oh no! You lose! You didn't write 'snap' in time.");
-            otherPlayer.incrementScore();
-            System.out.println("Would you like to play again? (Y/N)");
-            String response = scanner.nextLine();
-            if (response.equalsIgnoreCase("Y")) {
-                restartGame();
-            } else {
-                System.out.println("Thanks for playing!");
-                System.exit(0);
+            System.out.println("Press Enter to continue...");
+            nonCurrentPlayer.incrementScore();
+            inputThread.interrupt();
+
+            scanner = new Scanner(System.in); // setting up a new scanner - should fix error
+
+            // should clear input buffer
+            try {
+                while(System.in.available() > 0) {
+                    System.in.read();
+                }
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
             }
         } else {
-            snapped[0] = true;
             System.out.println("Well done, " + currentPlayer.getName() + "! You typed 'snap' in time. You win!");
             currentPlayer.incrementScore();
-            System.out.println("Would you like to play again? (Y/N)");
+
+            while (true) {
+                System.out.println("Would you like to play again? (Y/N)"); // make this a method --------
+                String response = scanner.nextLine();
+                if (response.equalsIgnoreCase("Y")) {
+                    resetGame();
+                    break;
+                } else if (response.equalsIgnoreCase("N")) {
+                    System.out.println("Thanks for playing!");
+                    System.exit(0);
+                } else {
+                    System.out.println("Invalid input. Please enter either Y or N.");
+                }
+            }
+
+            return true;
+        }
+
+        while (true) {
+            System.out.println("Would you like to play again? (Y/N)"); // make this a method --------
             String response = scanner.nextLine();
             if (response.equalsIgnoreCase("Y")) {
-                restartGame();
-            } else {
+                resetGame();
+                break;
+            } else if (response.equalsIgnoreCase("N")) {
                 System.out.println("Thanks for playing!");
                 System.exit(0);
+            } else {
+                System.out.println("Invalid input. Please enter either Y or N.");
             }
         }
 
-        return snapped[0];
-    }
-
-    // WIP - testing
-//    private boolean playerWritesSnap() {
-//        System.out.println("Looks like a SNAP! Type 'snap' within 2 seconds!");
-//        final boolean[] snapped = {false};
-//        Player otherPlayer = isPlayer1Turn ? player2 : player1; // should be non current player - FIX THIS
-//        Player currentPlayer = isPlayer1Turn ? player1 : player2; // FIX THIS
-//
-//        long startTime = System.currentTimeMillis();
-//        String input = scanner.nextLine().trim();
-//        long endTime = System.currentTimeMillis();
-//
-//        if (endTime - startTime <= 2000 && input.equalsIgnoreCase("snap")) {
-//            snapped[0] = true;
-//            System.out.println("Well done, " + currentPlayer.getName() + "! You typed 'snap' in time. You win!");
-//            currentPlayer.incrementScore();
-//            System.out.println("Would you like to play again? (Y/N)");
-//            String response = scanner.nextLine();
-//            if (response.equalsIgnoreCase("Y")) {
-//                restartGame();
-//            } else {
-//                System.out.println("Thanks for playing!");
-//                System.exit(0);
-//            }
-//        } else {
-//            System.out.println("Oh no! You lose! You didn't write 'snap' in time.");
-//            otherPlayer.incrementScore();
-//            System.out.println("Would you like to play again? (Y/N)");
-//            String response = scanner.nextLine();
-//            if (response.equalsIgnoreCase("Y")) {
-//                restartGame();
-//            } else {
-//                System.out.println("Thanks for playing!");
-//                System.exit(0);
-//            }
-//        }
-//
-//        return snapped[0];
-//    }
-
-    // testing...........
-//    private boolean playerWritesSnap() {
-//        System.out.println("Looks like a SNAP! Type 'snap' within 2 seconds!");
-//        final boolean[] snapped = {false};
-//        Player nonCurrentPlayer = isPlayer1Turn ? player2 : player1;
-//        Timer timer = new Timer();
-//        timer.schedule(new TimerTask() {
-//            @Override
-//            public void run() {
-//                if (!snapped[0]) {
-//                    System.out.println("Oh no! You lose! You didn't write 'snap' in time.");
-//                    System.out.println("Press Enter to continue...");
-//                    nonCurrentPlayer.incrementScore();
-//                }
-//            }
-//        }, 2000);
-//
-//        try {
-//            String input = scanner.nextLine().trim();
-//            if (input.equalsIgnoreCase("snap")) {
-//                snapped[0] = true;
-//            }
-//        } catch (Exception e) {
-//            System.err.println("Error reading input: " + e.getMessage());
-//        }
-//
-//        return snapped[0];
-//    }
-
+        return false;
+    } // end playerWritesSnap
+    
     public static void main(String[] args) {
 
         Snap snapGame = new Snap();
