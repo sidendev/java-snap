@@ -32,11 +32,11 @@ public class Snap extends CardGame {
         System.out.println("Welcome to Java Snap!");
         System.out.println();
         System.out.println("Players, lets get ready.");
-        player1Name = getValidPlayerName(1);
-        player2Name = getValidPlayerName(2);
+        player1Name = setValidPlayerName(1);
+        player2Name = setValidPlayerName(2);
     }
 
-    private String getValidPlayerName(int playerNumber) {
+    private String setValidPlayerName(int playerNumber) {
         String name;
         while (true) {
             System.out.print("Enter Player " + playerNumber + " name: ");
