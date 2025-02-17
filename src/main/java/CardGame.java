@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class CardGame {
-    private String name; // name of type of game - Snap
+    public String name; // name of type of game - Snap
     public ArrayList<Card> deckOfCards;
 
     // fields needed to set up deck of cards: TO BE PUT INTO ENUMS - also put into the ENUMS the SUIT ORDER

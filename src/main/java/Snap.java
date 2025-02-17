@@ -12,7 +12,7 @@ public class Snap extends CardGame {
     private final Player player1;
     private final Player player2;
     private boolean isPlayer1Turn;
-    private final Object scannerLock = new Object(); // needed for synchronized
+    private final Object scannerThreadLock = new Object(); // needed for synchronized to block other thread
     private String player1Name;
     private String player2Name;
 
@@ -26,7 +26,46 @@ public class Snap extends CardGame {
         this.player2 = new Player(player2Name);
         this.isPlayer1Turn = true;
     }
-    
+
+    // for junit testing:
+    public Snap(boolean testMode) {
+        super("Snap");
+        this.dealtCards = new ArrayList<>();
+        this.cardsDealtCount = 0;
+        if (testMode) {
+            this.player1Name = "TestPlayer1";
+            this.player2Name = "TestPlayer2";
+            this.player1 = new Player(player1Name);
+            this.player2 = new Player(player2Name);
+        } else {
+            this.scanner = new Scanner(System.in);
+            playerNameSetUp();
+            this.player1 = new Player(player1Name);
+            this.player2 = new Player(player2Name);
+        }
+        this.isPlayer1Turn = true;
+    }
+
+    public ArrayList<Card> getDeckOfCards() {
+        return deckOfCards;
+    }
+
+    public Player getPlayer1() {
+        return player1;
+    }
+
+    public Player getPlayer2() {
+        return player2;
+    }
+
+    public boolean isPlayer1Turn() {
+        return isPlayer1Turn;
+    }
+
+    public int getCardsDealtCount() {
+        return cardsDealtCount;
+    }
+
     private void playerNameSetUp() {
         System.out.println();
         System.out.println("Welcome to Java Snap!");
@@ -58,7 +97,7 @@ public class Snap extends CardGame {
         }
     }
 
-    private void resetGame() {
+    public void resetGame() {
         shuffleDeck();
         dealtCards.clear();
         cardsDealtCount = 0;
@@ -109,15 +148,15 @@ public class Snap extends CardGame {
         Thread inputThread = new Thread(() -> {
             try {
                 userInput[0] = scanner.nextLine().trim();
-                playerHasSnapped[0] = userInput[0].equalsIgnoreCase("snap");
-                synchronized (scannerLock) {
-                    scannerLock.notify();
+                playerHasSnapped[0] = userInput[0].equalsIgnoreCase("snap"); // checking input matches
+                synchronized (scannerThreadLock) {
+                    scannerThreadLock.notify(); // notify scannerThreadLock if snap written - notify will stop it
                 }
             } catch (NoSuchElementException | IllegalStateException e) {
-                System.err.println(e.getMessage());
+                System.err.println(e.getMessage()); // catch any error on input
             }
         });
-        inputThread.start();
+        inputThread.start(); // starting the thread after set up
         return inputThread;
     }
 
@@ -161,10 +200,10 @@ public class Snap extends CardGame {
         Thread inputThread = createInputThread(userInput, playerHasSnapped);
 
         // waiting for 2 seconds or until input is received
-        // this try catch should block other thread from attempting to access scanner
+        // this try catch should block other thread from attempting to access scanner during this time block
         try {
-            synchronized (scannerLock) {
-                scannerLock.wait(SNAP_TIMEOUT_MS);
+            synchronized (scannerThreadLock) {
+                scannerThreadLock.wait(SNAP_TIMEOUT_MS);
             }
         } catch (InterruptedException e) {
             System.err.println("InterruptedException while waiting for input: " + e.getMessage());
@@ -175,9 +214,9 @@ public class Snap extends CardGame {
             System.out.println("Oh no! You lose! You didn't write 'snap' in time.");
             System.out.println("Press Enter to continue...");
             nonCurrentPlayer.incrementScore();
-            inputThread.interrupt();
+            inputThread.interrupt(); // interrupts the thread
 
-            scanner = new Scanner(System.in); // setting up a new scanner for next input
+            scanner = new Scanner(System.in); // setting up a new scanner for next input - get error if this is not in place
 
             // clearing input buffer, IDE warning on (read) can be ignored
             try {
