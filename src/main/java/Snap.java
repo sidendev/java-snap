@@ -62,10 +62,6 @@ public class Snap extends CardGame {
         return isPlayer1Turn;
     }
 
-    public int getCardsDealtCount() {
-        return cardsDealtCount;
-    }
-
     private void playerNameSetUp() {
         System.out.println();
         System.out.println("Welcome to Java Snap!");
@@ -216,9 +212,9 @@ public class Snap extends CardGame {
             nonCurrentPlayer.incrementScore();
             inputThread.interrupt(); // interrupts the thread
 
-            scanner = new Scanner(System.in); // setting up a new scanner for next input - get error if this is not in place
+            scanner = new Scanner(System.in); // setting up a new scanner for next input - can get error if this is not in place
 
-            // clearing input buffer, IDE warning on (read) can be ignored
+            // clearing input buffer, IDE warning on (read) can be ignored here
             try {
                 while(System.in.available() > 0) {
                     System.in.read();
