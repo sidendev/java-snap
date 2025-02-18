@@ -6,13 +6,13 @@ import java.io.IOException;
 public class Snap extends CardGame {
     private static final int SNAP_TIMEOUT_MS = 2000;
     private static final int DECK_SIZE = 52;
-    private ArrayList<Card> dealtCards; // should not be final, can ignore IDE warning
+    private ArrayList<Card> dealtCards; // should not be final, will be modified in game, can ignore IDE warning
     private Scanner scanner;
     private int cardsDealtCount;
     private final Player player1;
     private final Player player2;
     private boolean isPlayer1Turn;
-    private final Object scannerThreadLock = new Object(); // needed for synchronized set up to block other thread
+    private final Object scannerThreadLock = new Object(); // needed for synchronized set up to make thread wait
     private String player1Name;
     private String player2Name;
 
@@ -144,9 +144,9 @@ public class Snap extends CardGame {
         Thread inputThread = new Thread(() -> {
             try {
                 userInput[0] = scanner.nextLine().trim();
-                playerHasSnapped[0] = userInput[0].equalsIgnoreCase("snap");
+                playerHasSnapped[0] = userInput[0].equalsIgnoreCase("snap"); // playerHasSnapped now true
                 synchronized (scannerThreadLock) {
-                    scannerThreadLock.notify(); // notify scannerThreadLock if snap written - notify will stop it
+                    scannerThreadLock.notify(); // notify main thread if snap written, allow main thread to continue
                 }
             } catch (NoSuchElementException | IllegalStateException e) {
                 System.err.println(e.getMessage()); // catch any error on input
@@ -192,11 +192,11 @@ public class Snap extends CardGame {
         Player currentPlayer = isPlayer1Turn ? player1 : player2;
         Player nonCurrentPlayer = isPlayer1Turn ? player2 : player1;
 
-        // this will create input thread and start it
+        // this will create separate input thread and start it
         Thread inputThread = createInputThread(userInput, playerHasSnapped);
 
-        // waiting for 2 seconds or until input is received
-        // this try catch should block other thread from attempting to access scanner during this time block
+        // main thread waits for up to 2 seconds while inputThread runs
+        // or till notify is called on scannerThreadLock
         try {
             synchronized (scannerThreadLock) {
                 scannerThreadLock.wait(SNAP_TIMEOUT_MS);
@@ -205,14 +205,15 @@ public class Snap extends CardGame {
             System.err.println("InterruptedException while waiting for input: " + e.getMessage());
         }
 
-        // if thread is still alive after 2 seconds or no correct input received
+        // if inputThread is still alive after 2 seconds or no correct input received
         if (inputThread.isAlive() || !playerHasSnapped[0]) {
             System.out.println("Oh no! You lose! You didn't write 'snap' in time.");
             System.out.println("Press Enter to continue...");
             nonCurrentPlayer.incrementScore();
-            inputThread.interrupt(); // interrupts the thread
+            inputThread.interrupt(); // interrupts the inputThread and stops it
 
-            scanner = new Scanner(System.in); // setting up a new scanner for next input - can get error if this is not in place
+            // resetting scanner to avoid input stream issues after thread interruption
+            scanner = new Scanner(System.in);
 
             // clearing input buffer, IDE warning on (read) can be ignored here
             try {
@@ -230,13 +231,15 @@ public class Snap extends CardGame {
         }
 
         askToPlayAgain();
-    } // end playerWritesSnap
+
+    }
+
 
     public static void main(String[] args) {
 
         Snap snapGame = new Snap();
         snapGame.playGame();
 
-    } // end Snap main method
+    }
 
-} // end Snap class
+}

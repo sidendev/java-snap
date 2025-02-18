@@ -19,7 +19,7 @@
 - Players can enter and save player names on multiple rounds.
 - Keep track of scores for each player across multiple rounds.
 - CardGame class base for other card games to be built upon easily.
-- Built-in timer function for entering "snap" input by player within 2 seconds or they lose.
+- Built-in timer function for entering "snap" by player within 2 seconds or they lose.
 - If a game cycles through a whole deck of 52 cards then it will automatically reshuffle & game continues.
 - Players can either easily play again or quit the game when they win or lose.
 
@@ -34,9 +34,8 @@
 ### Game Rules
 
 - Two players take turns drawing cards by pressing 'Enter'.
-- When two consecutive cards match in rank (e.g., two Kings), either player can type "snap".
-- The player who types "snap" correctly within 2 seconds wins the round and scores a point.
-- If neither player types "snap" in time, the round continues.
+- When two consecutive cards match in rank (example: two Kings), player has 2 secs to type "snap".
+- If the player types "snap" correctly within 2 seconds they win the round and score a point.
 - If the entire deck is dealt without a match, it's reshuffled automatically.
 - After each round, you can choose to play again or exit.
 
@@ -57,21 +56,16 @@
 - Maven (for dependency management)
 - Git (for cloning the repository)
 - Intellij (for development - recommended)
-  Getting Started
+  
+### Set Up Local Development Environment
 
-Clone the repository:  
+Clone the repository to a local directory:  
 ```git clone https://github.com/sidendev/java-snap.git```
-
-Navigate to the project directory:  
-```cd java-snap```
-
-Build the project with Maven:  
-```mvn clean package```
 
 Running the Game Locally:  
 Using IntelliJ IDEA (Recommended)
 
-- Open the project in IntelliJ IDEA
+- Open the project in IntelliJ IDEA, navigate via File => Open
 - Locate the Snap.java file in the project explorer
 - Right-click on the file and select "Run Snap.main()"
 - The game will start in the integrated terminal
@@ -80,7 +74,7 @@ If needed see the pom.xml file for dependencies required to run the project.
 install any dependencies required to run the project that you do not yet already have installed.
 
 The game has features built in that allow for ending the game after a player wins or loses.  
-If though you would like to end the game early you can press the stop button that should be in the bottom left corner of you IDE and this will end the game and exit the system run.
+If though you would like to end the game early, you can press the stop button that should be in the bottom left corner of your IDE. This will end the game and exit the system run.
 
 ## Testing
 
@@ -101,8 +95,8 @@ If though you would like to end the game early you can press the stop button tha
 ### Architecture Overview
 
 - CardGame: Base class providing card deck management functionality
-- Snap: Main game class implementing the Snap-specific rules
-- Card, CardSuit, CardSymbol, CardValue: Card representation
+- Snap: Main game class implementing the Snap-specific rules and game play
+- Card, CardSuit, CardSymbol, CardValue: Card representation of a real life card
 - Player: Player tracking with name and score
 - SortingBySuit: Comparator to sort cards by suit  
 
@@ -110,20 +104,19 @@ If though you would like to end the game early you can press the stop button tha
 
 - One of the most interesting (and challenging) aspects of this game is the use of multithreading to handle time-limited input for the "snap" mechanic:
   - Created a separate thread to handle user input.
-  - Uses synchronization to coordinate between the main game thread and input thread.
-  - Implements a timeout mechanism (2 seconds) for the "snap" response and handles thread is interrupted.   
+  - Uses 'synchronized' to coordinate between the main game thread and input thread.
+  - Implements a timeout mechanism (2 seconds) wait for the "snap" input and handles when main thread can start running again.   
 
 
 - The game implements comprehensive exception handling and validation to handle any potential errors:
   - Empty or invalid player names are handled with clear error messages.
   - Duplicate player names are detected and prevented.
   - Timeout handling for the "snap" input ensures the game continues as smoothly as possible.
-  - Scanner-related exceptions are handled throughout the game.
   - New scanner creation after interruption to ensure consistent input handling.
 
 ## Future Roadmap
 
-- Add a PlayersTable class section to allow players more functionality and have access to other methods in the game.
+- Add a PlayersTable class to allow players more functionality and have access to other methods in the game.
 - Add other card games that can be built upon the CardGame base such as Blackjack.
 - Allow players to alter the time they have to input 'snap'.
 - Possibly create a GUI for the game using JavaFX.
