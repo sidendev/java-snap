@@ -63,5 +63,6 @@ public class SnapTest {
         System.setOut(originalOut);
         System.setIn(System.in);
     }
+
 }
 

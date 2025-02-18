@@ -71,4 +71,5 @@ class CardGameTest {
         assertEquals("♥", firstCardSuit, "First card suit should be ♥ (Hearts)");
         assertEquals("♠", lastCardSuit, "Last card suit should be ♠ (Spades)");
     }
+
 }

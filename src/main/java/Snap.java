@@ -6,13 +6,13 @@ import java.io.IOException;
 public class Snap extends CardGame {
     private static final int SNAP_TIMEOUT_MS = 2000;
     private static final int DECK_SIZE = 52;
-    private ArrayList<Card> dealtCards; // should not be final
+    private ArrayList<Card> dealtCards; // should not be final, can ignore IDE warning
     private Scanner scanner;
     private int cardsDealtCount;
     private final Player player1;
     private final Player player2;
     private boolean isPlayer1Turn;
-    private final Object scannerThreadLock = new Object(); // needed for synchronized to block other thread
+    private final Object scannerThreadLock = new Object(); // needed for synchronized set up to block other thread
     private String player1Name;
     private String player2Name;
 
@@ -27,7 +27,7 @@ public class Snap extends CardGame {
         this.isPlayer1Turn = true;
     }
 
-    // for junit testing:
+    // for JUnit testing:
     public Snap(boolean testMode) {
         super("Snap");
         this.dealtCards = new ArrayList<>();
@@ -144,7 +144,7 @@ public class Snap extends CardGame {
         Thread inputThread = new Thread(() -> {
             try {
                 userInput[0] = scanner.nextLine().trim();
-                playerHasSnapped[0] = userInput[0].equalsIgnoreCase("snap"); // checking input matches
+                playerHasSnapped[0] = userInput[0].equalsIgnoreCase("snap");
                 synchronized (scannerThreadLock) {
                     scannerThreadLock.notify(); // notify scannerThreadLock if snap written - notify will stop it
                 }
@@ -152,7 +152,7 @@ public class Snap extends CardGame {
                 System.err.println(e.getMessage()); // catch any error on input
             }
         });
-        inputThread.start(); // starting the thread after set up
+        inputThread.start(); // starting the thread after created
         return inputThread;
     }
 
@@ -160,7 +160,7 @@ public class Snap extends CardGame {
         gameIntroMessage();
 
         // Infinite game loop - exits with System.exit() when player chooses to quit game.
-        // Will get warning on (while) in IDE
+        // Will get warning on (while) in IDE, this can be ignored.
         while (true) {
             Player currentPlayer = isPlayer1Turn ? player1 : player2;
             System.out.println(currentPlayer.getName() + "'s turn. Press Enter to get a card...");
@@ -182,7 +182,7 @@ public class Snap extends CardGame {
 
             isPlayer1Turn = !isPlayer1Turn;
         }
-    } // end playGame
+    }
 
     private void playerWritesSnap() {
         System.out.println("Looks like a SNAP! Type 'snap' within 2 seconds!");
@@ -192,7 +192,7 @@ public class Snap extends CardGame {
         Player currentPlayer = isPlayer1Turn ? player1 : player2;
         Player nonCurrentPlayer = isPlayer1Turn ? player2 : player1;
 
-        // creating input thread and starting
+        // this will create input thread and start it
         Thread inputThread = createInputThread(userInput, playerHasSnapped);
 
         // waiting for 2 seconds or until input is received
@@ -205,7 +205,7 @@ public class Snap extends CardGame {
             System.err.println("InterruptedException while waiting for input: " + e.getMessage());
         }
 
-        // if thread is still alive after 2 seconds or no input received
+        // if thread is still alive after 2 seconds or no correct input received
         if (inputThread.isAlive() || !playerHasSnapped[0]) {
             System.out.println("Oh no! You lose! You didn't write 'snap' in time.");
             System.out.println("Press Enter to continue...");

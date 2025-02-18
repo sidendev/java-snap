@@ -29,11 +29,4 @@ public class Card implements Comparable<Card> {
         return Integer.compare(this.value, otherCard.value);
     }
 
-//    public int compareTo(Card otherCard) {
-//        int suitCompare = suit.compareTo(otherCard.suit);
-//        if (suitCompare != 0) {
-//            return suitCompare;
-//        }
-//        return value.compareTo(otherCard.value);
-//    }
 }
